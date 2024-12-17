@@ -11,6 +11,7 @@ import {
 export type DatabaseSchema = {
   hive_book: HiveBook;
   user_book: UserBook;
+  buzz: Buzz;
 };
 
 /**
@@ -72,6 +73,53 @@ export type UserBook = {
    * Review of the book
    */
   review: string | null;
+};
+
+export type Buzz = {
+  /**
+   * Time the buzz was indexed
+   */
+  indexedAt: string;
+  /**
+   * URI of the buzz
+   */
+  uri: string;
+  /**
+   * CID of the buzz
+   */
+  cid: string;
+  /**
+   * DID of the user who added the buzz
+   */
+  userDid: string;
+  /**
+   * Time the buzz was added
+   */
+  createdAt: string;
+  /**
+   * Actual comment content
+   */
+  comment: string;
+  /**
+   * The book being buzzed about
+   */
+  bookUri: string;
+  /**
+   * CID of the book being buzzed about
+   */
+  bookCid: string;
+  /**
+   * The book's hive ID
+   */
+  hiveId: HiveId;
+  /**
+   * URI of the parent buzz
+   */
+  parentUri: string | null;
+  /**
+   * CID of the parent buzz
+   */
+  parentCid: string | null;
 };
 
 export type HiveBook = {
@@ -176,6 +224,27 @@ migrations["001"] = {
   async down(db: Kysely<unknown>) {
     await db.schema.dropTable("user_book").execute();
     await db.schema.dropTable("hive_book").execute();
+  },
+};
+migrations["002"] = {
+  async up(db: Kysely<unknown>) {
+    await db.schema
+      .createTable("buzz")
+      .addColumn("uri", "text", (col) => col.primaryKey())
+      .addColumn("cid", "text", (col) => col.notNull())
+      .addColumn("userDid", "text", (col) => col.notNull())
+      .addColumn("createdAt", "text", (col) => col.notNull())
+      .addColumn("indexedAt", "text", (col) => col.notNull())
+      .addColumn("comment", "text", (col) => col.notNull())
+      .addColumn("bookUri", "text", (col) => col.notNull())
+      .addColumn("bookCid", "text", (col) => col.notNull())
+      .addColumn("hiveId", "text", (col) => col.notNull())
+      .addColumn("parentUri", "text")
+      .addColumn("parentCid", "text")
+      .execute();
+  },
+  async down(db: Kysely<unknown>) {
+    await db.schema.dropTable("buzz").execute();
   },
 };
 
